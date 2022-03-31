@@ -2,11 +2,11 @@ const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 
-const config = require('./config/config')
+const {SERVER_PORT} = require('./config/config')
 const router = require('./router/index')
 const errHandler = require('./middleware/err-handler')
 
-const PORT = config.PORT || 3000
+const PORT = SERVER_PORT || 3000
 
 const app = express()
 
@@ -18,5 +18,5 @@ app.use(errHandler())
 
 
 app.listen(PORT, ()=>{
-    console.log(`server start at http://localhost:${PORT}`)
+    console.log(`starting server at http://localhost:${PORT}`)
 })

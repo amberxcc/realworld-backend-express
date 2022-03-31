@@ -15,3 +15,7 @@
 
 - 跨域请求
   - cors()
+
+- 数据验证
+  - express-validator：对body中的数据字段做验证
+  - mongoose(数据存储时触发的验证，保证数据一致性)
