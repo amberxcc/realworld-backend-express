@@ -1,8 +1,15 @@
 const {User} = require('../model')
-const {myHash} = require("../utils/util")
+const {myHash, jwtSign, jwtVerify} = require("../utils/util")
 
-exports.login = async (request, response) => {
-    response.send(`GET => /api/user/login`)
+exports.login = async (request, response, next) => {
+    try{
+        let user = request.user.toJSON()
+        user.jwt = jwtSign({_id: user._id})
+        delete user.password
+        response.status(201).json({user})
+    }catch(err){
+        next(err)
+    }
 }
 
 exports.registe = async (request, response, next) => {
@@ -15,14 +22,18 @@ exports.registe = async (request, response, next) => {
     }catch(err){
         next(err)
     }
-    
-    
 }
 
-exports.getUser = async (request, response) => {
-    response.send(`GET => /api/user`)
+exports.getUser = async (request, response, next) => {
+    try{
+        let user = request.user.toJSON()
+        delete user.password
+        response.status(200).json({ user })
+    }catch(err){
+        next(err)
+    }
 }
 
-exports.updateUser = async (request, response) => {
+exports.updateUser = async (request, response, next) => {
     response.send(`PUT => /api/user`)
 }

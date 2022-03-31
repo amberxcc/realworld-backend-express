@@ -4,4 +4,5 @@ module.exports = {
     MONGODB_PORT: 27017,
     COLLECTION: "realworld",
     SECRET_KEY: "secret",
+    TOKEN_TIME: "7d"
 }
