@@ -9,6 +9,6 @@ const router = express.Router()
 router.use(user)
 router.use('/profiles', profile)
 router.use('/articles',article)
-router.use(tag)
+router.use('/tags', tag)
 
 module.exports = router

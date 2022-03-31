@@ -1,27 +1,19 @@
 const express = require('express')
+const userController = require('../controller/user')
 
 const router = express.Router()
 
 // login
-router.post('/user/login', async (request, response) => {
-    response.send(`GET => /api/user/login`)
-})
+router.post('/user/login', userController.login)
 
 // 注册
-router.post('/users', async (request, response) => {
-    response.send(`POST => /api/users`)
-    console.log(request.body)
-})
+router.post('/users', userController.registe)
 
 // 获取当前用户信息
-router.get('/user', async (request, response) => {
-    response.send(`GET => /api/user`)
-})
+router.get('/user', userController.getUser)
 
 // 更新当前用户信息
-router.put('/user', async (request, response) => {
-    response.send(`PUT => /api/user`)
-})
+router.put('/user', userController.updateUser)
 
 
 module.exports = router

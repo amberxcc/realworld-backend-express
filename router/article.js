@@ -1,60 +1,39 @@
 const express = require('express')
+const articleController = require('../controller/article')
 
 const router = express.Router()
 
 // 获取所有文章，可使用url查询参数过滤
-router.get('/', async (request, response)=>{
-    response.send(`GET => /api/articles`)
-})
+router.get('/', articleController.getAll)
 
 // 获取已关注用户的所有文章，也支持过滤
-router.get('/feed', async (request, response)=>{
-    response.send(`GET => /api/articles/feed`)
-})
+router.get('/feed', articleController.getFeed)
 
 // 获取单篇文章
-router.get('/:slug', async (request, response)=>{
-    response.send(`GET => /api/articles/:slig`)
-})
+router.get('/:slug', articleController.getOne)
 
 // 创建文章
-router.post('/', async (request, response)=>{
-    response.send(`POST => /api/articles`)
-})
+router.post('/', articleController.creatOne)
 
 // 修改文章
-router.put('/:slug', async (request, response)=>{
-    response.send(`PUT => /api/articles/:slug`)
-})
+router.put('/:slug', articleController.updateOne)
 
 // 删除文章
-router.delete('/:slug', async (request, response)=>{
-    response.send(`DELETE => /api/articles/:slug`)
-})
+router.delete('/:slug', articleController.deleteOne)
 
 // 新增文章评论
-router.post('/:slug/comments', async (request, response)=>{
-    response.send(`POST => /api/articles/:slug/comments`)
-})
+router.post('/:slug/comments', articleController.addComment)
 
 // 获取文章评论
-router.get('/:slug/comments', async (request, response)=>{
-    response.send(`GET => /api/articles/:slug/comments`)
-})
+router.get('/:slug/comments', articleController.getComments)
 
 // 删除文章评论
-router.delete('/:slug/comments/:id', async (request, response)=>{
-    response.send(`DELETE => /api/articles/:slug/comments/:id`)
-})
+router.delete('/:slug/comments/:id', articleController.deleteComment)
 
 // 收藏文章
-router.post('/:slug/favorite', async (request, response)=>{
-    response.send(`POST => /api/articles/:slug/favorite`)
-})
+router.post('/:slug/favorite', articleController.favorite)
 
 // 取消收藏
-router.delete('/:slug/favorite', async (request, response)=>{
-    response.send(`DELETE => /api/articles/:slug/favorite`)
-})
+router.delete('/:slug/favorite', articleController.unfavorite)
 
 module.exports = router
