@@ -3,4 +3,5 @@ module.exports = {
     MONGODB_HOST: "47.96.9.220",
     MONGODB_PORT: 27017,
     COLLECTION: "realworld",
+    SECRET_KEY: "secret",
 }

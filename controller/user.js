@@ -1,4 +1,5 @@
 const {User} = require('../model')
+const {myHash} = require("../utils/util")
 
 exports.login = async (request, response) => {
     response.send(`GET => /api/user/login`)
@@ -6,10 +7,10 @@ exports.login = async (request, response) => {
 
 exports.registe = async (request, response, next) => {
     try{
-        console.log("=> request.body.user:",request.body.user)
-        const user = new User(request.body.user)
+        let user = new User(request.body.user)
         await user.save()
-        console.log("=> user:", JSON.stringify(user))
+        user = user.toJSON()
+        delete user.password
         response.status(201).json({user})
     }catch(err){
         next(err)

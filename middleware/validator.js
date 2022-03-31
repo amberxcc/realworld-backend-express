@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator');
 
+// 并行检查
 module.exports = validations => {
   return async (req, res, next) => {
     await Promise.all(validations.map(validation => validation.run(req)));
