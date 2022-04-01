@@ -1,5 +1,7 @@
 const express = require('express')
 const articleController = require('../controller/article')
+const articleValidator = require('../validator/article')
+const auth = require('../middleware/auth')
 
 const router = express.Router()
 
@@ -10,10 +12,10 @@ router.get('/', articleController.getAll)
 router.get('/feed', articleController.getFeed)
 
 // 获取单篇文章
-router.get('/:slug', articleController.getOne)
+router.get('/:slug', articleValidator.getArticle, articleController.getOne)
 
 // 创建文章
-router.post('/', articleController.creatOne)
+router.post('/', auth, articleValidator.creatArticle, articleController.creatOne)
 
 // 修改文章
 router.put('/:slug', articleController.updateOne)

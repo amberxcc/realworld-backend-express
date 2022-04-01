@@ -38,7 +38,7 @@ exports.login = [validate([
     body('user.username')
     .custom(async (username, { req }) => { // 将req对象解构出来（见mongoose文档）
         // 如果schema中设置了select:false，则默认查询不到，需要手动选择字段
-        const user = await User.findOne({username}).exec() 
+        const user = await User.findOne({username}).select(["password","username","email"]).exec() 
         
         if(!user){
             return(Promise.reject('用户名不存在'))

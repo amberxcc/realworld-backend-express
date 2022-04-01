@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         set: str => myHash(str), // 存入数据时，先哈希处理
+        select: false,
     },
     bio: {
         type: String,

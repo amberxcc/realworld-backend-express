@@ -1,8 +1,9 @@
 const mongoose = require('mongoose')
-const {MONGODB_HOST, MONGODB_PORT, COLLECTION} = require('../config/config')
+const {MONGODB_HOST, MONGODB_PORT, COLLECTION, dbTimeout} = require('../config/config')
 
+console.log(`准备连接mongodb数据库(dbTimeout ${dbTimeout}): ${MONGODB_HOST}:${MONGODB_PORT}/${COLLECTION}`)
 mongoose.connect(`mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${COLLECTION}`, {
-    serverSelectionTimeoutMS: 2000
+    serverSelectionTimeoutMS: dbTimeout
 })
 .then(() => {
     console.log(`mongodb connected: ${MONGODB_HOST}:${MONGODB_PORT}/${COLLECTION}`)
