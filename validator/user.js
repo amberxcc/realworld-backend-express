@@ -56,21 +56,32 @@ exports.update = [validate([
     body('user')
         .custom(async (user, { req }) => {
             for (let k in user) {
-                if (!userProperty.has(k)) return Promise.reject('没有该属性')
+                if (!userProperty.has(k)) return Promise.reject(`非法属性：${k}`)
+            }
+        })
+        .custom(async (user, { req }) => {
+            for (let k in user) {
                 if (userPropertyNotEmpty.has(k) && !user[k]) return Promise.reject(`${k}不能为空`)
-
+            }
+        }),
+    body('user')
+        .custom(async (user, { req }) => {
+            for (let k in user) {
                 if (k === 'username') {
                     const _user = await User.findOne({ username: user[k] })
                     if (_user) return Promise.reject('用户名已存在')
-                } else if (k === 'email') {
-                    const _user = await User.findOne({ email: user[k] })
-                    if (_user) return Promise.reject('email已存在')
-                    if (!user[k].match(/^\w+@\w+\.\w+$/i)) return Promise.reject('email格式错误')
-                } else if (k === 'password') {
-                    if (user[k].length <= 0) return Promise.reject('密码不能为空')
                 }
                 req.user[k] = user[k]
-
+            }
+        })
+        .custom(async (user, { req }) => {
+            for (let k in user) {
+                if (k === 'email') {
+                    const _user = await User.findOne({ email: user[k] })
+                    if (_user) return Promise.reject('email已存在')
+                    if (!user[k].match(/^\w+@\w+\.\w+$/i)) throw new Error('email格式错误')
+                }
+                req.user[k] = user[k]
             }
         })
 ])]
