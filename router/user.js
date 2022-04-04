@@ -6,7 +6,7 @@ const auth = require('../middleware/auth')
 const router = express.Router()
 
 // login
-router.post('/user/login', userValidator.login, userController.login)
+router.post('/users/login', userValidator.login, userController.login)
 
 // 注册
 router.post('/users', userValidator.registe, userController.registe)
@@ -15,7 +15,7 @@ router.post('/users', userValidator.registe, userController.registe)
 router.get('/user', auth, userController.getUser)
 
 // 更新当前用户信息
-router.put('/user', auth, userController.updateUser)
+router.put('/user', auth, userValidator.update, userController.updateUser)
 
 
 module.exports = router

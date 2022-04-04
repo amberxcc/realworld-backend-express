@@ -1,3 +1,8 @@
 exports.getTags = async (request, response, next)=>{
-    response.send(`GET => /api/tags`)
+    response.status(200).json({
+        "tags": [
+          "reactjs",
+          "angularjs"
+        ]
+      })
 }

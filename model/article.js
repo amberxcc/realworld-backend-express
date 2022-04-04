@@ -28,6 +28,6 @@ const articleSchema = new mongoose.Schema({
         ref: 'User', 
     },
     ...baseSchema
-})
+}, {versionKey: false})
 
 module.exports = articleSchema

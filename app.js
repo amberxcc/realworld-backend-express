@@ -1,7 +1,6 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-
 const {SERVER_PORT} = require('./config/config')
 const router = require('./router/index')
 const errHandler = require('./middleware/err-handler')

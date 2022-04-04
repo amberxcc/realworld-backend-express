@@ -26,6 +26,6 @@ const userSchema = new mongoose.Schema({
         default: null,
     },
     ...baseSchema,
-})
+}, {versionKey: false})
 
 module.exports = userSchema

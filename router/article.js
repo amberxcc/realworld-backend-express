@@ -7,6 +7,7 @@ const router = express.Router()
 
 // 获取所有文章，可使用url查询参数过滤
 router.get('/', articleController.getAll)
+router.options('/', articleController.getAll)
 
 // 获取已关注用户的所有文章，也支持过滤
 router.get('/feed', articleController.getFeed)
