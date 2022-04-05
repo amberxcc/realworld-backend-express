@@ -14,7 +14,8 @@ app.use(morgan('dev'))
 app.use(express.json())
 
 app.use(async (req, res, next)=>{
-    console.log(req.body.user)
+    console.log(req.body)
+    console.log(req.params)
     next()
 })
 
