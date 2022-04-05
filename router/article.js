@@ -7,10 +7,9 @@ const router = express.Router()
 
 // 获取所有文章，可使用url查询参数过滤
 router.get('/', articleController.getAll)
-router.options('/', articleController.getAll)
 
 // 获取已关注用户的所有文章，也支持过滤
-router.get('/feed', articleController.getFeed)
+router.get('/feed', auth, articleController.getFeed)
 
 // 获取单篇文章
 router.get('/:slug', articleValidator.getArticle, articleController.getOne)
@@ -19,24 +18,24 @@ router.get('/:slug', articleValidator.getArticle, articleController.getOne)
 router.post('/', auth, articleValidator.creatArticle, articleController.creatOne)
 
 // 修改文章
-router.put('/:slug', articleController.updateOne)
+router.put('/:slug', auth, articleValidator.updateArticle, articleController.updateOne)
 
 // 删除文章
-router.delete('/:slug', articleController.deleteOne)
+router.delete('/:slug', auth, articleValidator.deleteArticle, articleController.deleteOne)
 
 // 新增文章评论
-router.post('/:slug/comments', articleController.addComment)
+router.post('/:slug/comments', auth, articleController.addComment)
 
 // 获取文章评论
 router.get('/:slug/comments', articleController.getComments)
 
 // 删除文章评论
-router.delete('/:slug/comments/:id', articleController.deleteComment)
+router.delete('/:slug/comments/:id', auth, articleController.deleteComment)
 
 // 收藏文章
-router.post('/:slug/favorite', articleController.favorite)
+router.post('/:slug/favorite', auth, articleController.favorite)
 
 // 取消收藏
-router.delete('/:slug/favorite', articleController.unfavorite)
+router.delete('/:slug/favorite', auth, articleController.unfavorite)
 
 module.exports = router
