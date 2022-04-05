@@ -9,7 +9,8 @@ module.exports = validations => {
     if (errors.isEmpty()) {
       return next();
     }
-
-    res.status(422).json({ errors: errors.array() });
+    
+    // 错误消息的api没有详细定义，可能存在bug
+    res.status(422).json({ errors: {body: errors.array()} });
   };
 };

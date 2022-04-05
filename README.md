@@ -1,4 +1,4 @@
-> 一个基于开源项目realworld的api接口实现
+> 一个基于开源项目realworld的api接口实现（Express）
 
 - 项目地址：https://github.com/gothinkster/realworld
 
@@ -10,15 +10,15 @@
 ![](imgs/img1.png)
 
 - 请求体解析
-  - express.json()
-  - express.urlencoded()
+  - `express.json()`
+  - `express.urlencoded()`
 
 - 日志输出
-  - morgan()
+  - `morgan()`
 
 - 跨域请求
-  - cors()
+  - `cors()`
 
 - 数据验证
-  - express-validator：对body中的数据字段做验证
-  - mongoose(数据存储时触发的验证，保证数据一致性)
+  - `express-validator`: 对body中的数据字段做验证
+  - `mongoose`: (数据存储时触发的验证，保证数据一致性)

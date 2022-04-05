@@ -1,5 +1,16 @@
+const { User } = require('../model')
+
 exports.getProfile = async (request, response, next)=>{
-    response.send(`GET => /api/profiles/:username`)
+    try{
+        let username = request.params.username
+        let user = await User.findOne({username})
+        user = user.toJSON()
+        user.following = false
+        delete user._id
+        response.status(201).json({profile: user})
+    }catch(err){
+        next(err)
+    }
 }
 
 exports.follow = async (request, response, next)=>{

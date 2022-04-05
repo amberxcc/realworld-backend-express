@@ -1,3 +1,3 @@
-exports.userProperty = new Set(['username', 'password', 'bio', 'image', 'email'])
+exports.userProperty = new Set(['username', 'password', 'bio', 'image', 'email', 'token'])
 
 exports.userPropertyNotEmpty = new Set(['username', 'password', 'email'])

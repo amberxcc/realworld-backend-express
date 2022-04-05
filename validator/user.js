@@ -52,6 +52,7 @@ exports.login = [validate([
         })
 ])]
 
+// 也可以在前端验证数据
 exports.update = [validate([
     body('user')
         .custom(async (user, { req }) => {

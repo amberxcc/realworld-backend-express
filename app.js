@@ -1,3 +1,4 @@
+const fs = require('fs')
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
@@ -11,6 +12,12 @@ const app = express()
 
 app.use(morgan('dev'))
 app.use(express.json())
+
+app.use(async (req, res, next)=>{
+    console.log(req.body.user)
+    next()
+})
+
 app.use(cors())
 app.use('/api', router)
 app.use(errHandler())

@@ -32,6 +32,7 @@ exports.registe = async (request, response, next) => {
 exports.getUser = async (request, response, next) => {
     try{
         let user = request.user.toJSON()
+        user.token = jwtSign({_id: user._id})
         delete user._id
         response.status(200).json({ user })
     }catch(err){
@@ -44,6 +45,7 @@ exports.updateUser = async (request, response, next) => {
         let user = request.user
         await user.save()
         user = user.toJSON()
+        user.token = jwtSign({_id: user._id})
         delete user._id
         delete user.password // 虽然查不出来，但可能更新了，再删下
         response.status(200).json({ user })
