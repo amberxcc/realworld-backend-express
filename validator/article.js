@@ -1,6 +1,6 @@
 const validate = require('../middleware/validator')
 const {body, param} = require('express-validator')
-const { Article } = require('../model')
+const { Article, Comment } = require('../model')
 const { default: mongoose } = require('mongoose')
 const req = require('express/lib/request')
 
@@ -34,5 +34,27 @@ exports.deleteArticle = validate([
         if(!target) {
             return Promise.reject('文章id不存在') 
         }
+    })
+])
+
+exports.geComment = validate([
+    param('slug').custom(async id => {
+        if(!mongoose.isValidObjectId(id)) return Promise.reject('文章id格式错误')
+        const target = await Article.findById(id)
+        if(!target) return Promise.reject('文章id不存在')
+    })
+])
+
+exports.deleteComment = validate([
+    param('slug').custom(async id => {
+        if(!mongoose.isValidObjectId(id)) return Promise.reject('文章id格式错误')
+        const target = await Article.findById(id)
+        if(!target) return Promise.reject('文章id不存在')
+    }),
+    param('id').custom(async (id, {req}) => {
+        if(!mongoose.isValidObjectId(id)) return Promise.reject('评论id格式错误')
+        const target = await Comment.findById(id)
+        if(!target) return Promise.reject('评论id不存在')
+        req.comment = target
     })
 ])

@@ -25,9 +25,9 @@ const articleSchema = new mongoose.Schema({
     },
     author: {
         type: Schema.Types.ObjectId,
-        ref: 'User', 
+        ref: 'User',
     },
     ...baseSchema
-}, {versionKey: false})
+}, { versionKey: false })
 
 module.exports = articleSchema
