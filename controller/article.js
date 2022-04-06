@@ -4,25 +4,38 @@ exports.getAll = async (request, response, next) => {
     try {
         const { limit = 20, offset = 0, tag, author, favorited } = request.query
         const filter = {}
-
         if (tag) filter.tagList = tag
         if (author) {
             const user = await User.findOne({ username: author })
             filter.author = user ? user._id : null
         }
-        const articles = await Article.find(filter)
+        let articles = await Article.find(filter)
             .skip(Number(offset))
             .limit(Number(limit))
             .sort({
-                // 默认返回的数据按照创建时间排序，-1为逆序，1为顺序
-                creatAt: -1,
+                creatAt: -1, // 默认返回的数据按照创建时间排序，-1为逆序，1为顺序
             })
         for (let article of articles) {
-            article.populate('author')
+            await article.populate('author')
+            await article.populate('favoritedList')
         }
+
+
+        const finalResult = []
+        for (let temp of articles) {
+            console.log(temp)
+            let article = temp.toJSON()
+            article.slug = article._id
+            delete article._id
+            article.favoritesCount = article?.favoritedList?.length
+            article.favorited = false // getall不验证身份，统统false
+            delete article.favoritedList
+            finalResult.push(article)
+        }
+
         const articleCount = await Article.countDocuments()
         response.status(200).json({
-            articles,
+            articles: finalResult,
             articleCount,
         })
     } catch (err) {
@@ -60,8 +73,15 @@ exports.getFeed = async (request, response, next) => {
 
 exports.getOne = async (request, response, next) => {
     try {
-        const article = await Article.findById(request.params.slug).populate('author')
-        if (!article) response.status(404).end()
+        let article = request.article
+        let isFavorite = false
+        for(let articleId of article.favoritedList){
+            if(articleId.toString() === request.user._id.toString()) isFavorite = true
+        }
+        article = article.toJSON()
+        article.favoritesCount = article.favoritedList.length
+        article.favorited = isFavorite
+        delete article.favoritedList
         response.status(200).json({ article })
     } catch (err) {
         next(err)
@@ -70,10 +90,18 @@ exports.getOne = async (request, response, next) => {
 
 exports.creatOne = async (request, response, next) => {
     try {
-        const article = new Article(request.body.article)
+        let article = new Article(request.body.article)
         article.author = request.user._id
-        article.populate('author')
+        await article.populate("author")
         await article.save()
+
+        article = article.toJSON()
+        article.slug = article._id
+        delete article._id
+        delete article.favoritedList
+
+        article.favoritesCount = 0
+        article.favorited = false
         response.status(201).json({ article })
     } catch (err) {
         next(err)
@@ -147,9 +175,33 @@ exports.deleteComment = async (request, response, next) => {
 }
 
 exports.favorite = async (request, response, next) => {
-    response.send(`POST => /api/articles/:slug/favorite`)
+    try {
+        let article = await Article.findById(request.params.slug)
+        for (let user of article.favoritedList) {
+            if (user.toString() === request.user._id.toString()) {
+                response.status(200).end("已存在")
+            }
+        }
+        article.favoritedList.push(request.user._id)
+        await article.save()
+        response.status(200).end()
+    } catch (err) {
+        next(err)
+    }
 }
 
 exports.unfavorite = async (request, response, next) => {
-    response.send(`DELETE => /api/articles/:slug/favorite`)
+    try {
+        let article = await Article.findById(request.params.slug)
+        console.log(article.favoritedList)
+        for (let user of article.favoritedList) {
+            if (user.toString() === request.user._id.toString()) {
+                article.favoritedList.remove(user)
+            }
+        }
+        await article.save()
+        response.status(200).end()
+    } catch (err) {
+        next(err)
+    }
 }

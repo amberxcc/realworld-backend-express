@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const baseSchema = require('./base')
+const {timeSelected} = require('./base')
 
 const Schema = mongoose.Schema
 const articleSchema = new mongoose.Schema({
@@ -17,17 +17,17 @@ const articleSchema = new mongoose.Schema({
     },
     tagList: {
         type: [String],
-        default: null,
+        ref: 'Tag',
     },
-    favoritesCount: {
-        type: Number,
-        default: 0,
+    favoritedList: {
+        type: [Schema.Types.ObjectId],
+        ref: 'User',
     },
     author: {
         type: Schema.Types.ObjectId,
         ref: 'User',
     },
-    ...baseSchema
+    ...timeSelected
 }, { versionKey: false })
 
 module.exports = articleSchema

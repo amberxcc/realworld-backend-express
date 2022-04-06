@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const baseSchema = require('./base')
+const {timeUnSelected, timeSelected} = require('./base')
 
 const Schema = mongoose.Schema
 
@@ -18,7 +18,7 @@ const commentSchema = new mongoose.Schema({
         ref: 'User', 
         required: true,
     },
-    ...baseSchema
+    ...timeSelected
 }, {versionKey: false})
 
 module.exports = commentSchema

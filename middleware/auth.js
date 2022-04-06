@@ -6,8 +6,8 @@ module.exports = async (request, response, next) => {
         let token = request.headers.authorization || null
         token = token.substr(6)
         const result = jwtVerify(token)
-        console.log("==>auth",result)
-        const user = await User.findOne({_id: result._id})
+        const user = await User.findById(result._id)
+        // console.log("auth result==>", user, result, token)
         request.user = user
         next()
     }catch(e){

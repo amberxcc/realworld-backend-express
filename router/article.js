@@ -12,7 +12,7 @@ router.get('/', articleController.getAll)
 router.get('/feed', auth, articleController.getFeed)
 
 // 获取单篇文章
-router.get('/:slug', articleValidator.getArticle, articleController.getOne)
+router.get('/:slug', auth, articleValidator.getArticle, articleController.getOne)
 
 // 创建文章
 router.post('/', auth, articleValidator.creatArticle, articleController.creatOne)
@@ -27,15 +27,15 @@ router.delete('/:slug', auth, articleValidator.deleteArticle, articleController.
 router.post('/:slug/comments', auth, articleController.addComment)
 
 // 获取文章评论
-router.get('/:slug/comments', articleValidator.geComment, articleController.getComments)
+router.get('/:slug/comments', articleValidator.getComment, articleController.getComments)
 
 // 删除文章评论
 router.delete('/:slug/comments/:id', auth, articleValidator.deleteComment, articleController.deleteComment)
 
 // 收藏文章
-router.post('/:slug/favorite', auth, articleController.favorite)
+router.post('/:slug/favorite', auth, articleValidator.favorite, articleController.favorite)
 
 // 取消收藏
-router.delete('/:slug/favorite', auth, articleController.unfavorite)
+router.delete('/:slug/favorite', auth, articleValidator.unfavorite, articleController.unfavorite)
 
 module.exports = router

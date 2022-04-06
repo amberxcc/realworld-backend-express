@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const baseSchema = require('./base')
+const {timeUnSelected} = require('./base')
 const {myHash} = require('../utils/util')
 
 const userSchema = new mongoose.Schema({
@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null,
     },
-    ...baseSchema,
+    ...timeUnSelected,
 }, {versionKey: false})
 
 module.exports = userSchema

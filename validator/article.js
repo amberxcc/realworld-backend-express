@@ -16,14 +16,22 @@ exports.updateArticle = validate([
     body('article.body').notEmpty().withMessage('标题不能为空'),
     param('slug').custom(async id => {
         if(!mongoose.isValidObjectId(id)) return Promise.reject('文章id格式错误')
+        const target = await Article.findById(id)
+        if(!target) {
+            return Promise.reject('文章id不存在') 
+        }
     })
 ])
 
 exports.getArticle = validate([
-    param('slug').custom(async id => {
+    param('slug').custom(async (id,{ req}) => {
         if(!mongoose.isValidObjectId(id)) return Promise.reject('文章id格式错误')
         const target = await Article.findById(id)
+        await target.populate('author')
         if(!target) return Promise.reject('文章id不存在')
+        req.article = target
+        
+        
     })
 ])
 
@@ -37,7 +45,7 @@ exports.deleteArticle = validate([
     })
 ])
 
-exports.geComment = validate([
+exports.getComment = validate([
     param('slug').custom(async id => {
         if(!mongoose.isValidObjectId(id)) return Promise.reject('文章id格式错误')
         const target = await Article.findById(id)
@@ -56,5 +64,21 @@ exports.deleteComment = validate([
         const target = await Comment.findById(id)
         if(!target) return Promise.reject('评论id不存在')
         req.comment = target
+    })
+])
+
+exports.favorite = validate([
+    param('slug').custom(async id => {
+        if(!mongoose.isValidObjectId(id)) return Promise.reject('文章id格式错误')
+        const target = await Article.findById(id)
+        if(!target) return Promise.reject('文章id不存在')
+    })
+])
+
+exports.unfavorite = validate([
+    param('slug').custom(async id => {
+        if(!mongoose.isValidObjectId(id)) return Promise.reject('文章id格式错误')
+        const target = await Article.findById(id)
+        if(!target) return Promise.reject('文章id不存在')
     })
 ])
