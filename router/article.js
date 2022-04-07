@@ -12,7 +12,7 @@ router.get('/', articleController.getAll)
 router.get('/feed', auth, articleController.getFeed)
 
 // 获取单篇文章
-router.get('/:slug', auth, articleValidator.getArticle, articleController.getOne)
+router.get('/:slug', articleValidator.getArticle, articleController.getOne)
 
 // 创建文章
 router.post('/', auth, articleValidator.creatArticle, articleController.creatOne)

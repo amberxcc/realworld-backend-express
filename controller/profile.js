@@ -1,10 +1,21 @@
 const { User, Follow } = require('../model')
 
+/*
+ * 1. getProfile 也不需要身份验证
+ * 
+*/
+
 exports.getProfile = async (request, response, next) => {
     try {
-        let user = request.user.toJSON()
-        delete user._id
-        response.status(200).json({ profile: user })
+        let followed = request.followed.toJSON()
+
+        // let relation = await Follow.findOne({follower: request.user._id, followed: followed._id})
+        // if(relation) followed.following = true
+        // else followed.following = false
+        followed.following = false
+        delete followed._id
+
+        response.status(200).json({ profile: followed })
     } catch (err) {
         next(err)
     }

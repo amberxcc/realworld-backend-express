@@ -27,11 +27,8 @@ exports.getArticle = validate([
     param('slug').custom(async (id,{ req}) => {
         if(!mongoose.isValidObjectId(id)) return Promise.reject('文章id格式错误')
         const target = await Article.findById(id)
-        await target.populate('author')
         if(!target) return Promise.reject('文章id不存在')
         req.article = target
-        
-        
     })
 ])
 
@@ -68,17 +65,19 @@ exports.deleteComment = validate([
 ])
 
 exports.favorite = validate([
-    param('slug').custom(async id => {
+    param('slug').custom(async (id, { req }) => {
         if(!mongoose.isValidObjectId(id)) return Promise.reject('文章id格式错误')
         const target = await Article.findById(id)
         if(!target) return Promise.reject('文章id不存在')
+        req.article = target
     })
 ])
 
 exports.unfavorite = validate([
-    param('slug').custom(async id => {
+    param('slug').custom(async (id, { req }) => {
         if(!mongoose.isValidObjectId(id)) return Promise.reject('文章id格式错误')
         const target = await Article.findById(id)
         if(!target) return Promise.reject('文章id不存在')
+        req.article = target
     })
 ])
