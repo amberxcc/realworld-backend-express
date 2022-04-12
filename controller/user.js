@@ -3,10 +3,14 @@ const { jwtSign } = require("../utils/util")
 
 exports.login = async (request, response, next) => {
     try{
-        let user = request.user.toJSON() 
-        user.token = jwtSign({_id: user._id})
-        delete user.password
-        delete user._id
+        const user = {
+            username: request.user.username,
+            email: request.user.username,
+            bio: request.user.bio,
+            image: request.user.image,
+            token: jwtSign({id: request.user.id})
+        }
+
         response.status(200).json({user})
     }catch(err){
         next(err)
@@ -15,14 +19,17 @@ exports.login = async (request, response, next) => {
 
 exports.registe = async (request, response, next) => {
     try{
-        let user = new User(request.body.user)
-        await user.save()
-        user = user.toJSON() 
-        user.token = jwtSign({_id: user._id})
-        delete user.password
-        delete user.createdAt
-        delete user.updateAt
-        delete user._id
+        const newUser = new User(request.body.user)
+        await newUser.save()
+
+        const user = {
+            username: newUser.username,
+            email: newUser.email,
+            token: jwtSign({id: newUser._id}),
+            bio: null,
+            image: null,
+        }
+
         response.status(201).json({user})
     }catch(err){
         next(err)
@@ -31,9 +38,14 @@ exports.registe = async (request, response, next) => {
 
 exports.getUser = async (request, response, next) => {
     try{
-        let user = request.user.toJSON()
-        user.token = jwtSign({_id: user._id})
-        delete user._id
+        const user = {
+            username: request.user.username,
+            email: request.user.username,
+            bio: request.user.bio,
+            image: request.user.image,
+            token: jwtSign({id: request.user._id})
+        }
+
         response.status(200).json({ user })
     }catch(err){
         next(err)
@@ -42,12 +54,19 @@ exports.getUser = async (request, response, next) => {
 
 exports.updateUser = async (request, response, next) => {
     try{
-        let user = request.user
-        await user.save()
-        user = user.toJSON()
-        user.token = jwtSign({_id: user._id})
-        delete user._id
-        delete user.password // 虽然查不出来，但可能更新了，再删下
+        for(let i in request.body.user){
+            request.user[i] = request.body.user[i]
+        }
+        await request.user.save()
+        
+        const user = {
+            username: request.user.username,
+            email: request.user.username,
+            bio: request.user.bio,
+            image: request.user.image,
+            token: jwtSign({id: request.user._id})
+        }
+
         response.status(200).json({ user })
     }catch(err){
         next(err)

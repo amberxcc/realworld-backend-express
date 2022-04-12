@@ -1,4 +1,4 @@
-const { User, Follow } = require('../model')
+const { User } = require('../model')
 
 /*
  * 1. getProfile 也不需要身份验证
@@ -7,15 +7,19 @@ const { User, Follow } = require('../model')
 
 exports.getProfile = async (request, response, next) => {
     try {
-        let followed = request.followed.toJSON()
+        let following = false
+        if (request.user) {
+            following = request.target.isFollower(request.user.id)
+        }
 
-        // let relation = await Follow.findOne({follower: request.user._id, followed: followed._id})
-        // if(relation) followed.following = true
-        // else followed.following = false
-        followed.following = false
-        delete followed._id
+        const profile = {
+            username: request.target.username,
+            bio: request.target.bio,
+            image: request.target.image,
+            following
+        }
 
-        response.status(200).json({ profile: followed })
+        response.status(200).json({ profile })
     } catch (err) {
         next(err)
     }
@@ -23,23 +27,16 @@ exports.getProfile = async (request, response, next) => {
 
 exports.follow = async (request, response, next) => {
     try {
-        let follower = request.user._id
-        let followed = request.follow._id
-        let relation = await Follow.findOne({
-            follower,
-            followed
-        })
-        if (!relation) {
-            const newFollow = new Follow({
-                follower,
-                followed
-            })
-            await newFollow.save()
+        const target = request.wantToFollow
+        target.addFollower(request.user.id)
+
+        const profile = {
+            username: target.username,
+            bio: target.bio,
+            image: target.image,
+            following: target.isFollower(request.user.id)
         }
-        let profile = request.follow
-        profile = profile.toJSON()
-        delete profile._id
-        profile.follow = true
+
         response.status(200).json({ profile })
     } catch (err) {
         next(err)
@@ -48,24 +45,16 @@ exports.follow = async (request, response, next) => {
 
 exports.unfollow = async (request, response, next) => {
     try {
-        let follower = request.user._id
-        let followed = request.unfollow._id
-        let profile = request.unfollow
-        profile = profile.toJSON()
-        delete profile._id
+        const target = request.wantToUnfollow
+        target.removeFollower(request.user.id)
 
-        let relation = await Follow.findOne({
-            follower,
-            followed
-        })
-        if (relation) {
-            await Follow.deleteOne({
-                follower,
-                followed
-            })
-            
+        const profile = {
+            username: target.username,
+            bio: target.bio,
+            image: target.image,
+            following: target.isFollower(request.user.id)
         }
-        profile.follow = false
+
         response.status(200).json({ profile })
 
     } catch (err) {

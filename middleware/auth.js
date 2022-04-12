@@ -1,17 +1,29 @@
-const {jwtSign, jwtVerify} = require("../utils/util")
-const {User} = require('../model')
+const { jwtVerify } = require("../utils/util")
+const { User } = require('../model')
 
-module.exports = async (request, response, next) => {
-    try{
-        let token = request.headers.authorization || null
-        token = token.substr(6)
-        const result = jwtVerify(token)
-        const user = await User.findById(result._id)
-        // console.log("auth result==>", user, result, token)
-        request.user = user
-        next()
-    }catch(e){
-        response.status(401).end()
+module.exports = (option = {required: true}) => {
+    return async (request, response, next) => {
+        try {
+            const token = request.headers.authorization?.substr(6)
+
+            // 有token就验证
+            if(token){
+                const result = jwtVerify(token)
+                const user = await User.findById(result.id)
+                if(user) request.user = user
+                else response.status(401).end()
+            
+            // 无token且需要验证，抛异常退出
+            }else if(!token && option.required){
+                response.status(401).end()
+            }
+
+            // 其他情况默认啥也不干
+            
+            next()
+        } catch (e) {
+            response.status(401).end()
+        }
+
     }
-    
 }

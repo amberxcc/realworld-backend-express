@@ -1,8 +1,6 @@
-const mongoose = require('mongoose')
-const {timeSelected} = require('./base')
+const { Schema, model } = require('mongoose')
 
-const Schema = mongoose.Schema
-const articleSchema = new mongoose.Schema({
+const articleSchema = new Schema({
     title: {
         type: String,
         required: true,
@@ -19,15 +17,42 @@ const articleSchema = new mongoose.Schema({
         type: [String],
         ref: 'Tag',
     },
-    favoritedList: {
-        type: [Schema.Types.ObjectId],
-        ref: 'User',
-    },
     author: {
         type: Schema.Types.ObjectId,
         ref: 'User',
     },
-    ...timeSelected
-}, { versionKey: false })
+    slug: {
+        type: String,
+    },
+    favoritedList: {
+        type: [String],
+        default: []
+    },
+}, { versionKey: false, timestamps: true, })
 
-module.exports = articleSchema
+articleSchema.methods.getFavoriteCount = function () {
+    return this.favoritedList.length
+}
+
+articleSchema.methods.isFavorite = function (userId) {
+    return this.favoritedList.includes(userId)
+}
+
+articleSchema.methods.addFavorite = async function (userId) {
+    if (!this.favoritedList.includes(userId)) {
+        this.favoritedList.push(userId)
+        await this.save()
+    }
+
+}
+
+articleSchema.methods.removeFavorite = async function (userId) {
+    for (let i = 0; i < this.favoritedList.length; i++) {
+        if (this.favoritedList[i] === userId) {
+            this.favoritedList.splice(userId, 1)
+            await this.save()
+        }
+    }
+}
+
+module.exports = model('Article', articleSchema)

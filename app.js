@@ -2,27 +2,24 @@ const fs = require('fs')
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-const {SERVER_PORT} = require('./config/config')
+const { SERVER_PORT } = require('./config/config')
 const router = require('./router/index')
 const errHandler = require('./middleware/err-handler')
-
-const PORT = SERVER_PORT || 3000
+const requestTester = require('./middleware/request-tester')
 
 const app = express()
+
+
 
 app.use(morgan('dev'))
 app.use(express.json())
 
-app.use(async (req, res, next)=>{
-    console.log(req.headers, req.body,req.params)
-    next()
-})
+app.use(requestTester())
 
 app.use(cors())
 app.use('/api', router)
 app.use(errHandler())
 
-
-app.listen(PORT, ()=>{
-    console.log(`starting server at http://localhost:${PORT}`)
+app.listen(SERVER_PORT, () => {
+    console.log(`server start at http://localhost:${SERVER_PORT}`)
 })

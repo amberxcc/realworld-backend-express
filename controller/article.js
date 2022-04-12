@@ -1,105 +1,35 @@
-const { Article, User, Follow, Comment } = require('../model')
+const { Article, User, Comment } = require('../model')
+const { slugify } = require('../utils/util')
 
-/*
- * 1. slug用id来表示，可能导致更新文章后删除所有收藏者的收藏记录
- * 2. 目前获取评论信息api接口不需要认证，没有关注信息（后续可能添加认证版本，增加following字段）
- * 3. 获取单篇文章，不需认证（后续可能添加认证版本，增加following字段）
-*/
-
-exports.getAll = async (request, response, next) => {
-    try {
-        const { limit = 20, offset = 0, tag, author, favorited } = request.query
-        const filter = {}
-        if (tag) filter.tagList = tag
-        if (author) {
-            const user = await User.findOne({ username: author })
-            filter.author = user ? user._id : null
-        }
-        let articles = await Article.find(filter)
-            .skip(Number(offset))
-            .limit(Number(limit))
-            .sort({
-                creatAt: -1, // 默认返回的数据按照创建时间排序，-1为逆序，1为顺序
-            })
-
-        const finalResult = []
-        for (let temp of articles) {
-            await temp.populate('author')
-            await temp.populate('favoritedList')
-            let article = temp.toJSON()
-            article.slug = article._id
-            delete article._id
-            article.favoritesCount = article?.favoritedList?.length
-            article.favorited = false // getall不验证身份，统统false
-            delete article.favoritedList
-            finalResult.push(article)
-        }
-
-        const articleCount = await Article.countDocuments()
-        response.status(200).json({
-            articles: finalResult,
-            articleCount,
-        })
-    } catch (err) {
-        next(err)
-    }
-}
-
-exports.getFeed = async (request, response, next) => {
-    try {
-        let articleCount = 0
-        const { limit = 20, offset = 0 } = request.query
-        const followedList = await Follow.find({ follower: request.user._id })
-        const filterList = []
-
-        for (let i of followedList) {
-            filterList.push(i.followed)
-        }
-        const articles = await Article.find({ author: { $in: filterList } })
-            .skip(Number(offset))
-            .limit(Number(limit))
-            .sort({ creatAt: -1 })
-
-        const finalResult = []
-        for (let temp of articles) {
-            articleCount++
-            await temp.populate('author')
-            await temp.populate('favoritedList')
-            let article = temp.toJSON()
-            article.slug = article._id
-            delete article._id
-            article.favoritesCount = article?.favoritedList?.length ?? 0
-            article.favorited = false
-            for (let user of article.favoritedList) {
-                if (request.user.email === user.email) article.favorited = true
-            }
-            delete article.favoritedList
-            finalResult.push(article)
-        }
-
-        response.status(200).json({
-            articles: finalResult,
-            articleCount,
-        })
-    } catch (err) {
-        next(err)
-    }
-}
 
 exports.getOne = async (request, response, next) => {
     try {
-        let article = request.article
-        await article.populate('author')
-        await article.populate('favoritedList')
+        const target = request.target
+        const author = await User.findOne({ _id: target.author })
+        let following = false
 
-        article = article.toJSON()
-        let isFavorite = false
-        // for (let user of article.favoritedList) {
-        //     if (user.email === request.user.email) isFavorite = true
-        // }
-        article.favoritesCount = article.favoritedList.length
-        article.favorited = isFavorite
-        delete article.favoritedList
+        if (request.user) {
+            following = author.isFollower(request.user.id)
+        }
+
+        const article = {
+            slug: target.slug,
+            title: target.title,
+            description: target.description,
+            body: target.body,
+            tagList: target.tagList,
+            createdAt: target.createdAt,
+            updatedAt: target.updatedAt,
+            favorited: target.isFavorite(request.user.id),
+            favoritesCount: target.getFavoriteCount(),
+            atuhor: {
+                username: author.username,
+                bio: author.bio,
+                image: author.image,
+                following
+            },
+        }
+
         response.status(200).json({ article })
     } catch (err) {
         next(err)
@@ -108,17 +38,33 @@ exports.getOne = async (request, response, next) => {
 
 exports.creatOne = async (request, response, next) => {
     try {
-        let article = new Article(request.body.article)
-        article.author = request.user._id
-        await article.populate("author")
-        await article.save()
+        const newArticle = new Article({
+            ...request.body.article, // 任何Schema中未定义的键/值总是被忽略
+            author: request.user._id,
+            slug: slugify(request.body.article.title)
+        })
+        await newArticle.save()
 
-        article = article.toJSON()
-        article.slug = article._id
-        article.favoritesCount = 0
-        article.favorited = false
-        delete article._id
-        delete article.favoritedList
+        const author = request.user
+        const article = {
+            slug: newArticle.slug,
+            title: newArticle.title,
+            description: newArticle.description,
+            body: newArticle.body,
+            tagList: newArticle.tagList,
+            createdAt: newArticle.createdAt,
+            updatedAt: newArticle.updatedAt,
+            favorited: false,
+            favoritesCount: 0,
+            atuhor: {
+                username: author.username,
+                bio: author.bio,
+                image: author.image,
+                following: author.isFollower(author.id)
+            },
+        }
+
+        console.log(newArticle,article)
 
         response.status(201).json({ article })
     } catch (err) {
@@ -128,18 +74,38 @@ exports.creatOne = async (request, response, next) => {
 
 exports.updateOne = async (request, response, next) => {
     try {
-        let article = new Article(request.body.article)
-        article.author = request.user._id
-        article.populate('author')
-        await article.save()
-        await Article.deleteOne({ _id: request.params.slug })
+        const target = request.target
+        const author = await User.findOne({ _id: target.author })
+        let following = false
 
-        article = article.toJSON()
-        article.slug = article._id
-        article.favoritesCount = 0
-        article.favorited = false
-        delete article._id
-        delete article.favoritedList
+        console.log(request.body.article)
+        for (let i in request.body.article) {
+            target[i] = request.body.article[i]
+            if (i === 'title') target.slug = slugify(target[i])
+        }
+        await target.save()
+
+        if (request.user) {
+            following = author.isFollower(request.user.id)
+        }
+
+        const article = {
+            slug: target.slug,
+            title: target.title,
+            description: target.description,
+            body: target.body,
+            tagList: target.tagList,
+            createdAt: target.createdAt,
+            updatedAt: target.updatedAt,
+            favorited: target.isFavorite(request.user.id),
+            favoritesCount: target.getFavoriteCount(),
+            atuhor: {
+                username: author.username,
+                bio: author.bio,
+                image: author.image,
+                following
+            },
+        }
 
         response.status(201).json({ article })
     } catch (err) {
@@ -148,26 +114,142 @@ exports.updateOne = async (request, response, next) => {
 }
 
 exports.deleteOne = async (request, response, next) => {
-    await Article.deleteOne({ _id: request.params.slug })
-    response.status(200).end()
+    if (request.user.id === request.target.author.toString()) {
+        await Article.deleteOne({ slug: request.params.slug })
+        response.status(204).end()
+    } else {
+        response.status(403).end()
+    }
 
+
+}
+
+exports.getAll = async (request, response, next) => {
+    try {
+        const { limit = 20, offset = 0, tag, author, favorited } = request.query
+        const filter = {}
+        if (tag) filter.tagList = tag
+        if (favorited) filter.favoritedList = favorited
+        if (author) {
+            const user = await User.findOne({ username: author })
+            filter.username = user ? user._id : null
+        }
+
+        const findResults = await Article.find(filter)
+            .skip(Number(offset))
+            .limit(Number(limit))
+            .sort({
+                creatAt: -1, // 默认返回的数据按照创建时间排序，-1为逆序，1为顺序
+            })
+
+        const articles = []
+        for (let target of findResults) {
+            const author = await User.findOne({ _id: target.author })
+            let following = false
+
+            console.log('user:', request.user)
+            if (request.user) {
+                following = author.isFollower(request.user.id)
+            }
+
+            const article = {
+                slug: target.slug,
+                title: target.title,
+                description: target.description,
+                body: target.body,
+                tagList: target.tagList,
+                createdAt: target.createdAt,
+                updatedAt: target.updatedAt,
+                favorited: request.user ? target.isFavorite(request.user.id) : false,
+                favoritesCount: target.getFavoriteCount(),
+                author: {
+                    username: author.username,
+                    bio: author.bio,
+                    image: author.image,
+                    following
+                },
+            }
+            articles.push(article)
+        }
+
+        const articleCount = await Article.countDocuments()
+        response.status(200).json({ articles, articleCount })
+    } catch (err) {
+        next(err)
+    }
+}
+
+exports.getFeed = async (request, response, next) => {
+    try {
+        let articleCount = 0
+        const { limit = 20, offset = 0 } = request.query
+        const findResults = await Article.find({})
+            .skip(Number(offset))
+            .limit(Number(limit))
+            .sort({
+                creatAt: -1, // 默认返回的数据按照创建时间排序，-1为逆序，1为顺序
+            })
+
+        const articles = []
+        for (let target of findResults) {
+            const author = await User.findById(target.author)
+            if (!author.followers.includes(request.user.id)) continue
+
+            let following = false
+            if (request.user) {
+                following = author.isFollower(request.user.id)
+            }
+
+            const article = {
+                slug: target.slug,
+                title: target.title,
+                description: target.description,
+                body: target.body,
+                tagList: target.tagList,
+                creatAt: target.createdAt,
+                updateAt: target.updateAt,
+                favorited: target.isFavorite(request.user.id),
+                favoritesCount: target.getFavoriteCount(),
+                atuhor: {
+                    username: author.username,
+                    bio: author.bio,
+                    image: author.image,
+                    following
+                },
+            }
+            articles.push(article)
+            articleCount++
+        }
+
+        response.status(200).json({ articles, articleCount })
+    } catch (err) {
+        next(err)
+    }
 }
 
 exports.addComment = async (request, response, next) => {
     try {
-        console.log(request.params.slug)
-        let comment = new Comment({
+        const newComment = new Comment({
             body: request.body.comment.body,
-            article: request.params.slug,
-            author: request.user._id,
+            article: request.targetArticle.id,
+            author: request.user.id,
         })
-        await comment.populate('author')
-        await comment.save()
+        await newComment.save()
 
-        comment = comment.toJSON()
-        comment.id = comment._id
-        delete comment._id
-        delete comment.article
+        const author = request.user
+        const comment = {
+            id: newComment.id,
+            creatAt: newComment.creatAt,
+            updateAt: newComment.updateAt,
+            body: newComment.body,
+            author: {
+                username: author.username,
+                bio: author.bio,
+                image: author.image,
+                following: author.isFollower(author.id)
+            }
+        }
+
         response.status(201).json({ comment })
     } catch (err) {
         next(err)
@@ -177,9 +259,30 @@ exports.addComment = async (request, response, next) => {
 
 exports.getComments = async (request, response, next) => {
     try {
-        const comments = await Comment.find({ article: request.params.slug })
-        for (let comment of comments) {
-            await comment.populate('author')
+        const comments = []
+        const findComments = await Comment.find({ article: request.target.id })
+        for (let _comment of findComments) {
+            
+            const author = await User.findOne({id: _comment.author})
+            let following = false
+
+            if(request.user){
+                following = author.isFollower(request.user.id)
+            }
+
+            const comment = {
+                id: _comment.id,
+                creatAt: _comment.creatAt,
+                updateAt: _comment.updateAt,
+                body: _comment.body,
+                author: {
+                    username: author.username,
+                    bio: author.bio,
+                    image: author.image,
+                    following
+                }
+            }
+            comments.push(comment)
         }
         response.status(200).json({ comments })
     } catch (err) {
@@ -189,12 +292,12 @@ exports.getComments = async (request, response, next) => {
 
 exports.deleteComment = async (request, response, next) => {
     try {
-        if (request.comment.author._id.toString() !== request.user._id.toString()) {
+        if(request.targetComment.author !== request.user.id){
             response.status(403).end()
-        } else {
-            await Comment.deleteOne({ _id: request.params.id })
-            response.status(200).end()
         }
+        await Comment.deleteOne ({id: request.params.id})
+        response.status(204).end()
+
     } catch (err) {
         next(err)
     }
@@ -202,17 +305,8 @@ exports.deleteComment = async (request, response, next) => {
 
 exports.favorite = async (request, response, next) => {
     try {
-        let article = request.article
-        await article.populate('favoritedList')
-
-        for (let user of article.favoritedList) {
-            if (user.email === request.user.email) {
-                return response.status(200).end("已存在")
-            }
-        }
-
-        article.favoritedList.push(request.user._id)
-        await article.save()
+        const target = request.target
+        target.addFavorite(request.user.id)
         response.status(200).end()
     } catch (err) {
         next(err)
@@ -221,14 +315,8 @@ exports.favorite = async (request, response, next) => {
 
 exports.unfavorite = async (request, response, next) => {
     try {
-        let article = request.article
-        await article.populate('favoritedList')
-        for (let user of article.favoritedList) {
-            if (user.email === request.user.email) {
-                article.favoritedList.remove(user)
-                await article.save()
-            }
-        }
+        const target = request.target
+        target.removeFavorite(request.user.id)
         response.status(200).end()
     } catch (err) {
         next(err)

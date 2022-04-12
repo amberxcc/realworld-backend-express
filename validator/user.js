@@ -2,7 +2,6 @@ const validate = require('../middleware/validator')
 const { body } = require('express-validator')
 const { User } = require('../model')
 const { myHash } = require('../utils/util')
-const { userProperty, userPropertyNotEmpty } = require("../utils/user")
 
 exports.registe = validate([
     body('user.username')
@@ -36,10 +35,11 @@ exports.login = [validate([
 ]), validate([
     body('user')
         .custom(async (user, { req }) => { 
-            const target = await User.findOne({ email: user.email }).select(["_id", "password", "username", "email", "bio", "image"])
+            const target = await User.findOne({ email: user.email })
             if (!target) {
                 return (Promise.reject('email不存在'))
             } else {
+                console.log(user.password,' -- ',target)
                 if (myHash(user.password) !== target.password) return Promise.reject('密码错误')
                 req.user = target 
             }
@@ -50,8 +50,9 @@ exports.login = [validate([
 exports.update = [validate([
     body('user')
         .custom(async (user, { req }) => {
+            let userProperty = ['username', 'password', 'bio', 'image', 'email', 'token']
             for (let k in user) {
-                if (!userProperty.has(k)) return Promise.reject(`非法属性：${k}`)
+                if (!userProperty.includes(k)) return Promise.reject(`非法属性：${k}`)
             }
         }),
 
@@ -59,8 +60,8 @@ exports.update = [validate([
         .custom(async (user, { req }) => {
             for (let k in user) {
                 if (k === 'username') {
-                    const _user = await User.findOne({ username: user[k] })
-                    if (_user) return Promise.reject('用户名已存在')
+                    const target = await User.findOne({ username: user[k] })
+                    if (target) return Promise.reject('用户名已存在')
                 }
             }
         }),
@@ -72,7 +73,6 @@ exports.update = [validate([
                     if (_user) return Promise.reject('email已存在')
                     if (!user[k].match(/^\w+@\w+\.\w+$/i)) throw new Error('email格式错误')
                 }
-                req.user[k] = user[k] //验证完毕后投以挂载新属性
             }
         }),
 ])]

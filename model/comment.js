@@ -1,24 +1,18 @@
-const mongoose = require('mongoose')
-const {timeUnSelected, timeSelected} = require('./base')
+const {Schema, model} = require('mongoose')
 
-const Schema = mongoose.Schema
-
-const commentSchema = new mongoose.Schema({
+const commentSchema = new Schema({
     body: {
         type: String,
         required: true, 
     },
     article: {
-        type: Schema.Types.ObjectId,
-        ref: 'Article', 
+        type: String,
         required: true,
     },
     author: {
-        type: Schema.Types.ObjectId,
-        ref: 'User', 
+        type: String,
         required: true,
     },
-    ...timeSelected
-}, {versionKey: false})
+}, {versionKey: false, timestamps: true})
 
-module.exports = commentSchema
+module.exports = model('Comment', commentSchema)
