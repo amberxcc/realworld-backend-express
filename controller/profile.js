@@ -1,9 +1,5 @@
 const { User } = require('../model')
 
-/*
- * 1. getProfile 也不需要身份验证
- * 
-*/
 
 exports.getProfile = async (request, response, next) => {
     try {
@@ -25,6 +21,7 @@ exports.getProfile = async (request, response, next) => {
     }
 }
 
+
 exports.follow = async (request, response, next) => {
     try {
         const target = request.wantToFollow
@@ -42,6 +39,7 @@ exports.follow = async (request, response, next) => {
         next(err)
     }
 }
+
 
 exports.unfollow = async (request, response, next) => {
     try {

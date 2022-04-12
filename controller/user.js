@@ -1,6 +1,7 @@
 const { User } = require('../model')
 const { jwtSign } = require("../utils/util")
 
+
 exports.login = async (request, response, next) => {
     try{
         const user = {
@@ -16,6 +17,7 @@ exports.login = async (request, response, next) => {
         next(err)
     }
 }
+
 
 exports.registe = async (request, response, next) => {
     try{
@@ -36,6 +38,7 @@ exports.registe = async (request, response, next) => {
     }
 }
 
+
 exports.getUser = async (request, response, next) => {
     try{
         const user = {
@@ -51,6 +54,7 @@ exports.getUser = async (request, response, next) => {
         next(err)
     }
 }
+
 
 exports.updateUser = async (request, response, next) => {
     try{

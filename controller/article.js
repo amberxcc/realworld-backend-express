@@ -36,6 +36,7 @@ exports.getOne = async (request, response, next) => {
     }
 }
 
+
 exports.creatOne = async (request, response, next) => {
     try {
         const newArticle = new Article({
@@ -71,6 +72,7 @@ exports.creatOne = async (request, response, next) => {
         next(err)
     }
 }
+
 
 exports.updateOne = async (request, response, next) => {
     try {
@@ -113,6 +115,7 @@ exports.updateOne = async (request, response, next) => {
     }
 }
 
+
 exports.deleteOne = async (request, response, next) => {
     if (request.user.id === request.target.author.toString()) {
         await Article.deleteOne({ slug: request.params.slug })
@@ -123,6 +126,7 @@ exports.deleteOne = async (request, response, next) => {
 
 
 }
+
 
 exports.getAll = async (request, response, next) => {
     try {
@@ -179,6 +183,7 @@ exports.getAll = async (request, response, next) => {
     }
 }
 
+
 exports.getFeed = async (request, response, next) => {
     try {
         let articleCount = 0
@@ -227,6 +232,7 @@ exports.getFeed = async (request, response, next) => {
     }
 }
 
+
 exports.addComment = async (request, response, next) => {
     try {
         const newComment = new Comment({
@@ -256,6 +262,7 @@ exports.addComment = async (request, response, next) => {
     }
 
 }
+
 
 exports.getComments = async (request, response, next) => {
     try {
@@ -290,6 +297,7 @@ exports.getComments = async (request, response, next) => {
     }
 }
 
+
 exports.deleteComment = async (request, response, next) => {
     try {
         if(request.targetComment.author !== request.user.id){
@@ -303,6 +311,7 @@ exports.deleteComment = async (request, response, next) => {
     }
 }
 
+
 exports.favorite = async (request, response, next) => {
     try {
         const target = request.target
@@ -312,6 +321,7 @@ exports.favorite = async (request, response, next) => {
         next(err)
     }
 }
+
 
 exports.unfavorite = async (request, response, next) => {
     try {

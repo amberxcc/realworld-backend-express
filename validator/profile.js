@@ -2,6 +2,7 @@ const validate = require('../middleware/validator')
 const { param } = require('express-validator')
 const { User } = require('../model')
 
+
 exports.getProfile = validate([
     param('username')
         .custom(async (username, { req }) => {
@@ -14,6 +15,7 @@ exports.getProfile = validate([
         }),
 ])
 
+
 exports.follow = validate([
     param('username')
         .custom(async (username, { req }) => {
@@ -25,6 +27,7 @@ exports.follow = validate([
             }
         }),
 ])
+
 
 exports.unfollow = validate([
     param('username')

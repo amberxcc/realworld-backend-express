@@ -3,6 +3,7 @@ const { body } = require('express-validator')
 const { User } = require('../model')
 const { myHash } = require('../utils/util')
 
+
 exports.registe = validate([
     body('user.username')
         .notEmpty().withMessage('用户名不能为空')
@@ -26,6 +27,7 @@ exports.registe = validate([
         })
 ])
 
+
 exports.login = [validate([
     body('user.email')
         .notEmpty().withMessage('email不能为空'),
@@ -46,16 +48,9 @@ exports.login = [validate([
         })
 ])]
 
+
 // 也可以在前端验证数据
 exports.update = [validate([
-    body('user')
-        .custom(async (user, { req }) => {
-            let userProperty = ['username', 'password', 'bio', 'image', 'email', 'token']
-            for (let k in user) {
-                if (!userProperty.includes(k)) return Promise.reject(`非法属性：${k}`)
-            }
-        }),
-
     body('user')
         .custom(async (user, { req }) => {
             for (let k in user) {

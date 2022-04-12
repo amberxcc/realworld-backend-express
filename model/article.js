@@ -30,13 +30,16 @@ const articleSchema = new Schema({
     },
 }, { versionKey: false, timestamps: true, })
 
+
 articleSchema.methods.getFavoriteCount = function () {
     return this.favoritedList.length
 }
 
+
 articleSchema.methods.isFavorite = function (userId) {
     return this.favoritedList.includes(userId)
 }
+
 
 articleSchema.methods.addFavorite = async function (userId) {
     if (!this.favoritedList.includes(userId)) {
@@ -46,6 +49,7 @@ articleSchema.methods.addFavorite = async function (userId) {
 
 }
 
+
 articleSchema.methods.removeFavorite = async function (userId) {
     for (let i = 0; i < this.favoritedList.length; i++) {
         if (this.favoritedList[i] === userId) {
@@ -54,5 +58,6 @@ articleSchema.methods.removeFavorite = async function (userId) {
         }
     }
 }
+
 
 module.exports = model('Article', articleSchema)

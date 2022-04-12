@@ -3,11 +3,13 @@ const { body, param } = require('express-validator')
 const { Article, Comment } = require('../model')
 const { mongoose } = require('mongoose')
 
+
 exports.creatArticle = validate([
     body('article.title').notEmpty().withMessage('标题不能为空'),
     body('article.description').notEmpty().withMessage('标题不能为空'),
     body('article.body').notEmpty().withMessage('标题不能为空'),
 ])
+
 
 exports.getArticle = validate([
     param('slug').custom(async (slug, { req }) => {
@@ -16,6 +18,7 @@ exports.getArticle = validate([
         req.target = target
     })
 ])
+
 
 exports.updateArticle = validate([
     param('slug').custom(async (slug, { req }) => {
@@ -28,6 +31,7 @@ exports.updateArticle = validate([
     })
 ])
 
+
 exports.deleteArticle = validate([
     param('slug').custom(async (slug, { req }) => {
         const target = await Article.findOne({ slug })
@@ -35,6 +39,7 @@ exports.deleteArticle = validate([
         req.target = target
     })
 ])
+
 
 exports.addComment = validate([
     body('comment.body').notEmpty().withMessage('评论不能为空'),
@@ -55,6 +60,7 @@ exports.getComments = validate([
     })
 ])
 
+
 exports.deleteComment = validate([
     param('slug').custom(async (slug, { req }) => {
         const targetArticle = await Article.find({ slug })
@@ -69,6 +75,7 @@ exports.deleteComment = validate([
     })
 ])
 
+
 exports.favorite = validate([
     param('slug').custom(async (slug, { req }) => {
         const target = await Article.findOne({ slug })
@@ -76,6 +83,7 @@ exports.favorite = validate([
         req.target = target
     })
 ])
+
 
 exports.unfavorite = validate([
     param('slug').custom(async (slug, { req }) => {

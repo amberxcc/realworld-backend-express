@@ -29,9 +29,11 @@ const userSchema = new Schema({
     },
 }, { versionKey: false, timestamps: true })
 
+
 userSchema.methods.isFollower = function (userId) {
     return this.followers.includes(userId)
 }
+
 
 userSchema.methods.addFollower = async function (followerId) {
     if (!this.followers.includes(followerId)) {
@@ -40,6 +42,7 @@ userSchema.methods.addFollower = async function (followerId) {
     }
 
 }
+
 
 userSchema.methods.removeFollower = async function (followerId) {
     for (let i = 0; i < this.followers.length; i++) {
