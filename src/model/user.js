@@ -24,8 +24,7 @@ const userSchema = new Schema({
         default: '',
     },
     followers: { //追随者、关注自己的人
-        type: [String],
-        default: [],
+        type: [String]
     },
 }, { versionKey: false, timestamps: true })
 

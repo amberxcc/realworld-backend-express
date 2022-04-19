@@ -25,8 +25,7 @@ const articleSchema = new Schema({
         type: String,
     },
     favoritedList: {
-        type: [String],
-        default: []
+        type: [String]
     },
 }, { versionKey: false, timestamps: true, })
 

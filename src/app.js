@@ -9,8 +9,6 @@ const requestTester = require('./middleware/request-tester')
 
 const app = express()
 
-
-
 app.use(morgan('dev'))
 app.use(express.json())
 

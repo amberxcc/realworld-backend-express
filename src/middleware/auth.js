@@ -19,7 +19,6 @@ module.exports = (option = {required: true}) => {
             }
 
             // 其他情况默认啥也不干,传递给下个中间件
-            
             next()
         } catch (e) {
             response.status(401).end()

@@ -69,7 +69,7 @@ exports.deleteComment = validate([
     }),
     param('id').custom(async (id, { req }) => {
         if (!mongoose.isValidObjectId(id)) return Promise.reject('评论id格式错误')
-        const targetComment = await Comment.findById(id)
+        const targetComment = await Comment.findOne({id})
         if (!targetComment) return Promise.reject('评论id不存在')
         req.targetComment = targetComment
     })
