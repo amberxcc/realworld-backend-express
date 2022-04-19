@@ -6,7 +6,7 @@ exports.login = async (request, response, next) => {
     try{
         const user = {
             username: request.user.username,
-            email: request.user.username,
+            email: request.user.email,
             bio: request.user.bio,
             image: request.user.image,
             token: jwtSign({id: request.user.id})
@@ -43,7 +43,7 @@ exports.getUser = async (request, response, next) => {
     try{
         const user = {
             username: request.user.username,
-            email: request.user.username,
+            email: request.user.email,
             bio: request.user.bio,
             image: request.user.image,
             token: jwtSign({id: request.user._id})
@@ -65,7 +65,7 @@ exports.updateUser = async (request, response, next) => {
         
         const user = {
             username: request.user.username,
-            email: request.user.username,
+            email: request.user.email,
             bio: request.user.bio,
             image: request.user.image,
             token: jwtSign({id: request.user._id})

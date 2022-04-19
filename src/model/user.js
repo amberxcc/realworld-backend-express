@@ -17,11 +17,9 @@ const userSchema = new Schema({
     },
     bio: {
         type: String,
-        default: '',
     },
     image: {
         type: String,
-        default: '',
     },
     followers: { //追随者、关注自己的人
         type: [String]
