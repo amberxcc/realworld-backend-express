@@ -4,7 +4,7 @@ const cors = require('cors')
 const router = require('./router/index')
 const { errHandler, requestTester } = require('./middleware')
 const logger = require('./utils/logger')
-const { SERVER_PORT } = require('./config/config.default')
+const { SERVER_PORT } = require('./config')
 
 const app = express()
 

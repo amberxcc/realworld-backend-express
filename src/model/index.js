@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { MONGODB_HOST, MONGODB_PORT, COLLECTION, DB_TIMEOUT } = require('../config/config.default')
+const { MONGODB_HOST, MONGODB_PORT, COLLECTION, DB_TIMEOUT } = require('../config')
 const User = require('./user')
 const Article = require('./article')
 const Comment = require('./comment')
