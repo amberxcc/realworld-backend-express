@@ -1,20 +1,21 @@
 const mongoose = require('mongoose')
-const { MONGODB_HOST, MONGODB_PORT, COLLECTION, dbTimeout } = require('../config/config.default')
+const { MONGODB_HOST, MONGODB_PORT, COLLECTION, DB_TIMEOUT } = require('../config/config.default')
 const User = require('./user')
 const Article = require('./article')
 const Comment = require('./comment')
+const logger = require('../utils/logger')
 
-console.log(`准备连接到mongodb数据库(超时时间 ${dbTimeout}ms): ${MONGODB_HOST}:${MONGODB_PORT}/${COLLECTION}`)
 
+const url = `mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${COLLECTION}`
+const option = { serverSelectionTimeoutMS: DB_TIMEOUT }
 
-mongoose.connect(
-    `mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${COLLECTION}`, {
-    serverSelectionTimeoutMS: dbTimeout
-})
+logger.info(`准备连接到mongodb数据库(超时时间 ${DB_TIMEOUT}ms): ${url}`)
+
+mongoose.connect(url, option)
     .then(() => {
-        console.log(`mongodb connected: ${MONGODB_HOST}:${MONGODB_PORT}/${COLLECTION}`)
+        logger.info(`mongodb connected: ${url}`)
     }).catch(err => {
-        console.log(`mongodb connect fail: ${MONGODB_HOST}:${MONGODB_PORT}/${COLLECTION}`, err)
+        logger.error(`mongodb connect fail: ${url}`, err)
         process.exit(1)
     })
 

@@ -2,14 +2,14 @@ module.exports = {
     // api端口
     SERVER_PORT: 3001,
 
-    // 数据库ip
+    // 数据库hostname/ip
     MONGODB_HOST: "47.96.9.220",
 
     // 数据库端口
     MONGODB_PORT: 27017,
 
     // 数据库连接超时时间
-    dbTimeout: 5000,
+    DB_TIMEOUT: 5000,
 
     // 数据库集合
     COLLECTION: "realworld",
