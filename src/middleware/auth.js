@@ -10,12 +10,16 @@ module.exports = (option = {required: true}) => {
             if(token){
                 const result = jwtVerify(token)
                 const user = await User.findById(result.id)
-                if(user) request.user = user
-                else response.status(401).end()
+                if(user){
+                    request.user = user
+                }
+                else{
+                    return response.status(401).end()
+                }
             
             // 请求header无token但需要验证，抛异常退出
             }else if(!token && option.required){
-                response.status(401).end()
+                return response.status(401).end()
             }
 
             next()

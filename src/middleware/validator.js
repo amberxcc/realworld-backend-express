@@ -10,6 +10,6 @@ module.exports = validations => {
       return next(); // 必须return， 否则next()执行完后，洋葱圈回来继续执行
     }
     
-    res.status(422).json({ errors: {body: errors.array()} });
+    return res.status(422).json({ errors: {body: errors.array()} });
   };
 };

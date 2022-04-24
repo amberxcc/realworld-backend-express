@@ -7,5 +7,4 @@ exports.getTags = async (request, response, next) => {
   } catch (err) {
     next(err)
   }
-
 }

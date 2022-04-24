@@ -123,8 +123,6 @@ exports.deleteOne = async (request, response, next) => {
     } else {
         response.status(403).end()
     }
-
-
 }
 
 
